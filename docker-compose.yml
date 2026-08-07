@@ -1,0 +1,11 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: quantumstore-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - quantumstore_mongo_data:/data/db
+
+volumes:
+  quantumstore_mongo_data:
