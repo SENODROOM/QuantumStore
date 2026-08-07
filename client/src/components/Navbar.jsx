@@ -1,8 +1,10 @@
 import { Link, NavLink } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
   const { totalItems } = useCart();
+  const { user, logout, isAdmin } = useAuth();
 
   return (
     <header className="nav">
@@ -17,6 +19,14 @@ export default function Navbar() {
             Cart
             {totalItems > 0 && <span className="cart-count">{totalItems}</span>}
           </NavLink>
+          {user && !isAdmin && <NavLink to="/account/orders">My orders</NavLink>}
+          {user ? (
+            <button type="button" className="text-btn nav-text-btn" onClick={logout}>
+              Log out
+            </button>
+          ) : (
+            <NavLink to="/login">Account</NavLink>
+          )}
           <NavLink to="/admin" className="nav-admin">
             Admin
           </NavLink>

@@ -1,21 +1,40 @@
 import { useEffect, useState } from 'react';
 import api from '../api';
 import ProductCard from '../components/ProductCard';
-
-const categories = ['All', 'Laptops', 'Phones', 'Audio', 'Accessories', 'Wearables', 'Gaming'];
+import { usePageMeta } from '../hooks/usePageMeta';
 
 export default function Shop() {
+  usePageMeta({
+    title: 'Shop — QuantumStore',
+    description: 'Browse the full QuantumStore catalog from Quantum Logics Limited.',
+  });
+
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState(['All']);
   const [category, setCategory] = useState('All');
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    api
+      .get('/products/categories')
+      .then((res) => setCategories(['All', ...res.data]))
+      .catch(() => setCategories(['All', 'Laptops', 'Phones', 'Audio', 'Accessories', 'Wearables', 'Gaming']));
+  }, []);
 
   useEffect(() => {
     setLoading(true);
     api
       .get('/products', { params: { category, search } })
-      .then((res) => setProducts(res.data))
-      .catch(() => setProducts([]))
+      .then((res) => {
+        setProducts(res.data);
+        setError('');
+      })
+      .catch(() => {
+        setProducts([]);
+        setError('Could not load products. Please try again.');
+      })
       .finally(() => setLoading(false));
   }, [category, search]);
 
@@ -49,9 +68,10 @@ export default function Shop() {
           </div>
         </div>
 
-        {loading ? (
-          <p className="muted">Loading products…</p>
-        ) : (
+        {loading && <p className="muted">Loading products…</p>}
+        {error && <p className="form-error">{error}</p>}
+
+        {!loading && !error && (
           <div className="product-grid">
             {products.map((product) => (
               <ProductCard key={product._id} product={product} />
@@ -59,7 +79,7 @@ export default function Shop() {
           </div>
         )}
 
-        {!loading && !products.length && <p className="muted">No products match your filters.</p>}
+        {!loading && !error && !products.length && <p className="muted">No products match your filters.</p>}
       </div>
     </section>
   );

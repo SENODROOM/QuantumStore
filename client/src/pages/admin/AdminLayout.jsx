@@ -14,12 +14,14 @@ export default function AdminLayout() {
     <div className="admin-shell">
       <aside className="admin-sidebar">
         <p className="footer-brand">QuantumStore</p>
+        <p className="muted admin-user">Quantum Logics Limited</p>
         <p className="muted admin-user">{user?.email}</p>
         <nav>
           <NavLink to="/admin" end>
             Dashboard
           </NavLink>
           <NavLink to="/admin/products">Products</NavLink>
+          <NavLink to="/admin/categories">Categories</NavLink>
           <NavLink to="/admin/orders">Orders</NavLink>
           <NavLink to="/">View store</NavLink>
         </nav>

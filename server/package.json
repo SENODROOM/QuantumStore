@@ -9,7 +9,11 @@
     "start": "node src/index.js",
     "seed": "node src/seed.js"
   },
-  "keywords": ["quantumstore", "mern", "ecommerce"],
+  "keywords": [
+    "quantumstore",
+    "mern",
+    "ecommerce"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -18,9 +22,12 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
+    "mongodb-memory-server": "^11.2.0",
     "mongoose": "^9.9.1",
     "morgan": "^1.11.0",
-    "multer": "^2.2.0"
+    "multer": "^2.2.0",
+    "nodemailer": "^9.0.5",
+    "stripe": "^22.4.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

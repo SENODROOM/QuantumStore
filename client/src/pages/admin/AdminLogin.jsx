@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 export default function AdminLogin() {
   const { login, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('admin@quantumstore.com');
+  const [email, setEmail] = useState('admin@quaantumlogicslimited.com');
   const [password, setPassword] = useState('admin123');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -37,7 +37,7 @@ export default function AdminLogin() {
       <form className="admin-login-card" onSubmit={handleSubmit}>
         <p className="brand-hero">QuantumStore</p>
         <h1>Admin login</h1>
-        <p className="muted">Manage products, stock, and customer orders.</p>
+        <p className="muted">Quantum Logics Limited — manage products, stock, and orders.</p>
 
         <label>
           Email

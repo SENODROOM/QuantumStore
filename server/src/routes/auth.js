@@ -2,6 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { adminOnly, protect } from '../middleware/auth.js';
+import { EMAIL_RE } from '../utils/validate.js';
 
 const router = express.Router();
 
@@ -12,6 +13,31 @@ function signToken(user) {
     { expiresIn: '7d' }
   );
 }
+
+router.post('/register', async (req, res) => {
+  try {
+    const name = String(req.body.name || '').trim();
+    const email = String(req.body.email || '').trim().toLowerCase();
+    const password = String(req.body.password || '');
+
+    if (name.length < 2) return res.status(400).json({ message: 'Name is required' });
+    if (!EMAIL_RE.test(email)) return res.status(400).json({ message: 'Valid email is required' });
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters' });
+    }
+
+    const exists = await User.findOne({ email });
+    if (exists) return res.status(400).json({ message: 'Email already registered' });
+
+    const user = await User.create({ name, email, password, role: 'customer' });
+    res.status(201).json({
+      token: signToken(user),
+      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 router.post('/login', async (req, res) => {
   try {

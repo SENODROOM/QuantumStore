@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import api from '../api';
 import { useCart } from '../context/CartContext';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -9,29 +10,41 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  usePageMeta({
+    title: product ? `${product.name} — QuantumStore` : 'Product — QuantumStore',
+    description: product?.description || 'View product details on QuantumStore.',
+    image: product?.image,
+  });
 
   useEffect(() => {
+    setLoading(true);
     api
       .get(`/products/${id}`)
-      .then((res) => setProduct(res.data))
-      .catch(() => setError('Product not found'));
+      .then((res) => {
+        setProduct(res.data);
+        setError('');
+      })
+      .catch(() => setError('Product not found'))
+      .finally(() => setLoading(false));
   }, [id]);
 
-  if (error) {
+  if (loading) {
     return (
       <section className="section container">
-        <p>{error}</p>
-        <Link to="/shop" className="btn btn-primary">
-          Back to shop
-        </Link>
+        <p className="muted">Loading product…</p>
       </section>
     );
   }
 
-  if (!product) {
+  if (error) {
     return (
       <section className="section container">
-        <p className="muted">Loading…</p>
+        <p className="form-error">{error}</p>
+        <Link to="/shop" className="btn btn-primary">
+          Back to shop
+        </Link>
       </section>
     );
   }

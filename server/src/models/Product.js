@@ -5,11 +5,7 @@ const productSchema = new mongoose.Schema(
     name: { type: String, required: true, trim: true },
     description: { type: String, required: true },
     price: { type: Number, required: true, min: 0 },
-    category: {
-      type: String,
-      required: true,
-      enum: ['Laptops', 'Phones', 'Audio', 'Accessories', 'Wearables', 'Gaming'],
-    },
+    category: { type: String, required: true, trim: true },
     stock: { type: Number, required: true, min: 0, default: 0 },
     image: { type: String, required: true },
     featured: { type: Boolean, default: false },

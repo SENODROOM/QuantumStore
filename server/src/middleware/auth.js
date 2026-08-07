@@ -17,6 +17,21 @@ export function protect(req, res, next) {
   }
 }
 
+export function optionalAuth(req, _res, next) {
+  const header = req.headers.authorization;
+  if (!header?.startsWith('Bearer ')) {
+    return next();
+  }
+
+  try {
+    const token = header.split(' ')[1];
+    req.user = jwt.verify(token, process.env.JWT_SECRET);
+  } catch {
+    // ignore invalid token for optional auth
+  }
+  next();
+}
+
 export async function adminOnly(req, res, next) {
   try {
     const user = await User.findById(req.user.id);

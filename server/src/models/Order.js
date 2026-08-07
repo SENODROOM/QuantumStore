@@ -13,6 +13,7 @@ const orderItemSchema = new mongoose.Schema(
 
 const orderSchema = new mongoose.Schema(
   {
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     customerName: { type: String, required: true },
     email: { type: String, required: true },
     phone: { type: String, required: true },
@@ -24,6 +25,17 @@ const orderSchema = new mongoose.Schema(
       enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'],
       default: 'pending',
     },
+    paymentStatus: {
+      type: String,
+      enum: ['unpaid', 'pending', 'paid', 'failed'],
+      default: 'unpaid',
+    },
+    paymentMethod: {
+      type: String,
+      enum: ['manual', 'stripe'],
+      default: 'manual',
+    },
+    stripeSessionId: { type: String, default: null },
   },
   { timestamps: true }
 );

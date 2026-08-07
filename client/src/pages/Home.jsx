@@ -2,15 +2,31 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api';
 import ProductCard from '../components/ProductCard';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 export default function Home() {
+  usePageMeta({
+    title: 'QuantumStore — Quantum Logics Limited',
+    description: 'Buy laptops, phones, audio, and everyday tech gear from QuantumStore.',
+  });
+
   const [featured, setFeatured] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
+    setLoading(true);
     api
       .get('/products', { params: { featured: true } })
-      .then((res) => setFeatured(res.data.slice(0, 4)))
-      .catch(() => setFeatured([]));
+      .then((res) => {
+        setFeatured(res.data.slice(0, 4));
+        setError('');
+      })
+      .catch(() => {
+        setFeatured([]);
+        setError('Could not load featured products.');
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -22,7 +38,8 @@ export default function Home() {
           <p className="brand-hero">QuantumStore</p>
           <h1>Buy better tech. Sell nothing less.</h1>
           <p className="hero-copy">
-            A clean storefront for laptops, phones, audio, and everyday gear — priced clearly, shipped fast.
+            A Quantum Logics Limited storefront for laptops, phones, audio, and everyday gear — priced clearly,
+            shipped fast.
           </p>
           <div className="hero-actions">
             <Link to="/shop" className="btn btn-primary">
@@ -41,12 +58,16 @@ export default function Home() {
             <h2>Featured right now</h2>
             <p className="muted">Hand-picked products ready to purchase today.</p>
           </div>
-          <div className="product-grid">
-            {featured.map((product) => (
-              <ProductCard key={product._id} product={product} />
-            ))}
-          </div>
-          {!featured.length && (
+          {loading && <p className="muted">Loading featured products…</p>}
+          {error && <p className="form-error">{error}</p>}
+          {!loading && !error && (
+            <div className="product-grid">
+              {featured.map((product) => (
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
+          )}
+          {!loading && !error && !featured.length && (
             <p className="muted">No featured products yet. Add some from the admin panel.</p>
           )}
         </div>
