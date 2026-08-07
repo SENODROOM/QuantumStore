@@ -4,5 +4,6 @@ dist/
 .DS_Store
 *.log
 uploads/
-client/dist/
 server/uploads/
+client/dist/
+
