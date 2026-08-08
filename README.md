@@ -5,12 +5,13 @@ MERN ecommerce for **Quantum Logics Limited** — production-oriented storefront
 ## Stack
 
 - **MongoDB** — Atlas (or any durable URI) by default; `USE_MEMORY_DB=true` for local demo only
-- **Express 5 + TypeScript** — layered API (`routes` → `controllers` → `services` → `models`)
+- **Express 5 + TypeScript** — layered API (`routes` → `controllers` → `services` → `models`), Vercel serverless-ready
 - **React 19 (Vite) + TypeScript** — storefront + admin, TanStack Query, internal UI kit
 - **Stripe** — card checkout; **webhook is the source of truth** for payment status
 - **Resend or SMTP** — transactional email
-- **S3-compatible storage** — product images (local disk in development)
+- **S3-compatible storage** — product images (required in production / Vercel)
 - **Vitest + Playwright** — API and end-to-end tests
+- **Vercel** — separate frontend + API projects (see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md))
 
 ## Quick start (local demo)
 
@@ -27,7 +28,7 @@ npm run dev
 
 Admin credentials come from `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env` (see `.env.example`).
 
-> Production **must not** use `USE_MEMORY_DB`. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+> Production **must not** use `USE_MEMORY_DB`. Deploy on **Vercel** (API + storefront) — see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Scripts
 
