@@ -16,19 +16,27 @@ MERN ecommerce website for Quantum Logics Limited — sell and purchase tech pro
 
 ### Storefront
 - Catalog with pagination, sort, search autocomplete, product reviews, related products
-- Multi-image galleries, product variants, image zoom
+- Shop filters (price, brand, in-stock, min rating) synced to the URL; facets API
+- Multi-image galleries, product variants, image zoom; WebP + thumbnail optimization on upload
 - Cart drawer, coupons (`WELCOME10`), guest checkout, dark mode, toasts
+- Checkout: saved addresses, standard/express shipping, order notes
+- Product Q&A, review helpful votes + verified purchase badge, back-in-stock alerts
 - Recently viewed strip (localStorage)
-- Public order tracking (`/order/track`) and printable invoices
-- Customer cancellation of **pending** orders (restores stock)
+- Public order tracking (`/order/track`) and printable invoices (incl. shipping)
+- Customer cancellation of **pending** orders; return requests on **delivered** orders
+- SEO: `/sitemap.xml`, `/robots.txt`, Product JSON-LD on detail pages
+- PWA: web manifest + service worker with offline fallback
 
 ### Accounts
 - Register / login / password change
 - Forgot / reset password (JWT, 15 min; SMTP or console link when SMTP is unset)
-- Unified `/account/*` layout: Profile, Orders, Wishlist
+- Unified `/account/*` layout: Profile, Orders, Wishlist, Addresses
+- Branded HTML emails (order confirmation, password reset, invites) with plain-text fallback
 
 ### Admin / staff
-- Dashboard analytics, products (bulk actions, stock edits), categories, orders
+- Dashboard analytics with date-range stats, revenue-by-category, CSV export
+- Products (bulk actions, stock edits), categories, orders (returns approve/reject/refund)
+- Product Q&A answer queue; low-stock digest email (toggle in Settings)
 - Coupons, customers, settings — **admin only**
 - Staff role can manage products/orders but not settings/coupons/customers
 - Team invites from Settings; activity / stock audit log
