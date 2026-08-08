@@ -59,4 +59,32 @@ test.describe('QuantumStore e2e', () => {
     await page.getByRole('button', { name: 'Apply' }).click();
     await expect(page.getByText(/Discount/)).toBeVisible({ timeout: 15000 });
   });
+
+  test('mobile hamburger opens and navigates', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 740 });
+    await page.goto('/');
+    await expect(page.getByRole('button', { name: 'Open menu' })).toBeVisible();
+    await page.getByRole('button', { name: 'Open menu' }).click();
+    await expect(page.locator('#primary-nav')).toHaveClass(/open/);
+    await page.locator('#primary-nav').getByRole('link', { name: 'Shop' }).click();
+    await expect(page).toHaveURL(/\/shop/);
+    await expect(page.getByRole('heading', { name: 'Shop' })).toBeVisible();
+  });
+
+  test('mobile guest checkout', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 740 });
+    await page.goto('/shop');
+    const firstCard = page.locator('.product-card').first();
+    await expect(firstCard).toBeVisible({ timeout: 30000 });
+    await firstCard.locator('a').first().click();
+    await page.getByRole('button', { name: 'Add to cart' }).click();
+    await page.getByRole('link', { name: 'Checkout' }).first().click();
+
+    await page.locator('label', { hasText: 'Full name' }).locator('input').fill('Mobile Buyer');
+    await page.locator('label', { hasText: 'Email' }).locator('input').fill('mobile@example.com');
+    await page.locator('label', { hasText: 'Phone' }).locator('input').fill('5559876543');
+    await page.locator('label', { hasText: 'Shipping address' }).locator('textarea').fill('99 Pocket Street, Town');
+    await page.getByRole('button', { name: /Place order/ }).click();
+    await expect(page.getByRole('heading', { name: 'Order confirmed' })).toBeVisible({ timeout: 30000 });
+  });
 });
