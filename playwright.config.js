@@ -15,19 +15,19 @@ export default defineConfig({
   webServer: [
     {
       command: 'npm run dev --prefix backend',
-      url: 'http://127.0.0.1:5000/api/health',
+      url: 'http://localhost:5000/api/health',
       reuseExistingServer: !process.env.CI,
-      timeout: 120_000,
+      timeout: 180_000,
       env: {
         ...process.env,
         JWT_SECRET: process.env.JWT_SECRET || 'test-secret',
       },
     },
     {
-      command: 'npm run dev --prefix frontend',
+      command: 'npm run dev --prefix frontend -- --host 127.0.0.1 --port 5173',
       url: 'http://127.0.0.1:5173',
       reuseExistingServer: !process.env.CI,
-      timeout: 120_000,
+      timeout: 180_000,
     },
   ],
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],

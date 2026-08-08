@@ -29,7 +29,7 @@ test.describe('QuantumStore e2e', () => {
     await page.getByRole('button', { name: 'Sign in' }).click();
 
     await expect(page.getByText('Quantum Logics Limited')).toBeVisible({ timeout: 30000 });
-    await page.getByRole('link', { name: 'Products' }).click();
+    await page.getByRole('link', { name: 'Products', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Products' })).toBeVisible();
 
     const name = `E2E Product ${Date.now()}`;

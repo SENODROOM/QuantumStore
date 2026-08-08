@@ -5,7 +5,10 @@ dist/
 *.log
 uploads/
 
-
-server/uploads/
-client/dist/
-
+backend/uploads/
+backend/data/
+frontend/dist/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
