@@ -1,6 +1,6 @@
-[submodule "client"]
-    path = client
+[submodule "frontend"]
+    path = frontend
     url = https://github.com/SENODROOM/QuantumBackend-Frontend.git
-[submodule "server"]
-    path = server
+[submodule "backend"]
+    path = backend
     url = https://github.com/SENODROOM/QuantumStore-Backend.git
