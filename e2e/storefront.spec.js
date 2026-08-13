@@ -23,7 +23,7 @@ test.describe('QuantumStore e2e', () => {
   });
 
   test('admin login and product create', async ({ page }) => {
-    await page.goto('/admin/login');
+    await page.goto('/login');
     await page.locator('label', { hasText: 'Email' }).locator('input').fill('admin@quaantumlogicslimited.com');
     await page.locator('label', { hasText: 'Password' }).locator('input').fill('admin123');
     await page.getByRole('button', { name: 'Sign in' }).click();

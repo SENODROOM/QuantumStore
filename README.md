@@ -23,10 +23,10 @@ npm run dev
 ```
 
 - Storefront: http://localhost:5173  
-- Admin: http://localhost:5173/admin/login  
+- Admin: sign in at http://localhost:5173/login — admin/staff accounts are redirected to `/admin` automatically  
 - API health: http://localhost:5000/api/health  
 
-Admin credentials come from `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env` (see `.env.example`).
+Admin/staff sign in through the normal login form; access to `/admin` is granted purely by the account's `role` in the database (never by a client-supplied value). Provision the initial admin with `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env` plus `npm run create-admin` (see `.env.example`).
 
 > Production **must not** use `USE_MEMORY_DB`. Deploy on **Vercel** (API + storefront) — see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
