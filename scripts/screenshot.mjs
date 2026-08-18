@@ -81,6 +81,25 @@ async function main() {
       await page.goto(url, { waitUntil: 'networkidle' });
       await page.waitForTimeout(500);
 
+      if (opts.full) {
+        // .cv-auto sections use content-visibility:auto for perf; Chromium won't
+        // paint them for a full-page screenshot unless forced, so override it here.
+        await page.addStyleTag({ content: '.cv-auto { content-visibility: visible !important; }' });
+
+        // This site reveals sections via IntersectionObserver as they scroll into
+        // view (see useReveal.ts) — walk the page once so everything below the
+        // fold has already animated in before the full-page capture.
+        await page.evaluate(async () => {
+          const step = Math.max(200, window.innerHeight);
+          for (let y = 0; y < document.body.scrollHeight; y += step) {
+            window.scrollTo(0, y);
+            await new Promise((resolve) => setTimeout(resolve, 60));
+          }
+          window.scrollTo(0, 0);
+        });
+        await page.waitForTimeout(300);
+      }
+
       const suffix = opts.theme ? `-${opts.theme}` : '';
       const file = path.join(opts.out, `${name}-${size.width}x${size.height}${suffix}.png`);
       await page.screenshot({ path: file, fullPage: opts.full });
