@@ -5,7 +5,7 @@ password.txt
 .DS_Store
 *.log
 uploads/
-
+Items/
 backend/uploads/
 backend/data/
 backend/data/mongo/
