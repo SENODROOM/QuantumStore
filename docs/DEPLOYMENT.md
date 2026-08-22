@@ -70,8 +70,10 @@ Environment variables (see `backend/.env.example`):
 
 `backend/vercel.json` rewrites all traffic to `/api` and schedules:
 
-- `GET /api/cron/low-stock-digest` daily at 08:00 UTC  
-  Auth: `Authorization: Bearer <CRON_SECRET>` (Vercel Cron sends this when `CRON_SECRET` is set — ensure the secret matches; the route also accepts `x-cron-secret`).
+- `GET /api/cron/low-stock-digest` daily at 08:00 UTC
+- `GET /api/cron/abandoned-carts` daily at 09:00 UTC — evaluates carts against the `abandonedCartHours` setting (Admin → Settings)
+
+Both require `Authorization: Bearer <CRON_SECRET>` (Vercel Cron sends this automatically when `CRON_SECRET` is set — ensure the secret matches; the routes also accept `x-cron-secret`).
 
 ### Seed admin (once)
 
@@ -134,6 +136,6 @@ Local hosts still use `src/server.js` (`app.listen` + optional daily `setInterva
 - [ ] Admin login works
 - [ ] Product image upload lands on S3 and absolute URL renders
 - [ ] Stripe test checkout + webhook marks order paid
-- [ ] Cron route rejects missing secret; succeeds with Bearer token
+- [ ] Both cron routes reject missing secret; succeed with Bearer token
 - [ ] CORS allows only the frontend origin
 - [ ] Playwright e2e green locally (`npm run test:e2e`)
