@@ -24,8 +24,8 @@ test.describe('QuantumStore e2e', () => {
 
   test('admin login and product create', async ({ page }) => {
     await page.goto('/login');
-    await page.locator('label', { hasText: 'Email' }).locator('input').fill('admin@quaantumlogicslimited.com');
-    await page.locator('label', { hasText: 'Password' }).locator('input').fill('admin123');
+    await page.getByLabel('Email', { exact: true }).fill('admin@quaantumlogicslimited.com');
+    await page.getByLabel('Password', { exact: true }).fill('admin123');
     await page.getByRole('button', { name: 'Sign in' }).click();
 
     await expect(page.getByText('Quantum Logics Limited')).toBeVisible({ timeout: 30000 });
@@ -93,9 +93,9 @@ test.describe('QuantumStore e2e', () => {
     const password = 'buyer123';
 
     await page.goto('/register');
-    await page.locator('label', { hasText: 'Full name' }).locator('input').fill('Filter Buyer');
-    await page.locator('label', { hasText: 'Email' }).locator('input').fill(email);
-    await page.locator('label', { hasText: 'Password' }).locator('input').fill(password);
+    await page.getByLabel('Full name', { exact: true }).fill('Filter Buyer');
+    await page.getByLabel('Email', { exact: true }).fill(email);
+    await page.getByLabel('Password', { exact: true }).fill(password);
     await page.getByRole('button', { name: /Create account|Register|Sign up/i }).click();
     await expect(page).not.toHaveURL(/\/register/, { timeout: 30000 });
 
@@ -132,9 +132,9 @@ test.describe('QuantumStore e2e', () => {
     const password = 'buyer123';
 
     await page.goto('/register');
-    await page.locator('label', { hasText: 'Full name' }).locator('input').fill('Return Buyer');
-    await page.locator('label', { hasText: 'Email' }).locator('input').fill(email);
-    await page.locator('label', { hasText: 'Password' }).locator('input').fill(password);
+    await page.getByLabel('Full name', { exact: true }).fill('Return Buyer');
+    await page.getByLabel('Email', { exact: true }).fill(email);
+    await page.getByLabel('Password', { exact: true }).fill(password);
     await page.getByRole('button', { name: /Create account|Register|Sign up/i }).click();
     await expect(page).not.toHaveURL(/\/register/, { timeout: 30000 });
 
