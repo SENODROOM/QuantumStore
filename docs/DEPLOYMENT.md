@@ -1,6 +1,6 @@
 # Deployment guide — QuantumStore on Vercel
 
-Production deployment for **two Vercel projects** (frontend SPA + Express API as serverless), with MongoDB Atlas, S3-compatible object storage, Stripe, and Resend.
+Production deployment for **two Vercel projects** (frontend SPA + Express API as serverless), with MongoDB Atlas, Cloudinary image storage, Stripe, and Resend.
 
 ## Architecture
 
@@ -17,7 +17,7 @@ Browser ──► Vercel Frontend (Vite)
                ▼
             Vercel Backend (Express serverless)
                ├── MongoDB Atlas
-               ├── S3 / R2 (product images)
+               ├── Cloudinary (product images)
                ├── Stripe Checkout + webhook
                └── Resend / SMTP
 ```
@@ -29,20 +29,18 @@ Browser ──► Vercel Frontend (Vite)
 3. Copy the connection string into `MONGODB_URI`.
 4. Enable continuous backups / snapshots.
 
-## 2. Object storage (required in production)
+## 2. Image storage (required in production)
 
-Local `uploads/` does **not** work on Vercel. Set:
+Local `uploads/` does **not** work on Vercel. Set (values from the Cloudinary console dashboard):
 
 ```env
-STORAGE_DRIVER=s3
-S3_BUCKET=...
-S3_REGION=us-east-1
-S3_ACCESS_KEY_ID=...
-S3_SECRET_ACCESS_KEY=...
-S3_PUBLIC_URL=https://your-cdn-or-bucket-url
+STORAGE_DRIVER=cloudinary
+CLOUDINARY_CLOUD_NAME=...
+CLOUDINARY_API_KEY=...
+CLOUDINARY_API_SECRET=...
 ```
 
-Optional: `S3_ENDPOINT` for Cloudflare R2 or MinIO. Configure the bucket CORS to allow `GET`/`PUT` from your frontend origin.
+Uploads land in the `quantumstore/products` folder and are served from `res.cloudinary.com`.
 
 ## 3. Backend (API) Vercel project
 
@@ -63,8 +61,8 @@ Environment variables (see `backend/.env.example`):
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Seed once via `npm run seed` against Atlas |
 | `STRIPE_*` | Secret, publishable, webhook secret |
 | `RESEND_API_KEY` or `SMTP_*` | Transactional email |
-| `STORAGE_DRIVER` | Must be `s3` |
-| `S3_*` | Bucket credentials |
+| `STORAGE_DRIVER` | Must be `cloudinary` |
+| `CLOUDINARY_*` | Cloud name, API key, API secret |
 | `CRON_SECRET` | Shared secret for Vercel Cron |
 | `SENTRY_DSN` | Optional |
 
@@ -72,8 +70,9 @@ Environment variables (see `backend/.env.example`):
 
 - `GET /api/cron/low-stock-digest` daily at 08:00 UTC
 - `GET /api/cron/abandoned-carts` daily at 09:00 UTC — evaluates carts against the `abandonedCartHours` setting (Admin → Settings)
+- `GET /api/cron/audionic-sync` daily at 06:00 UTC — re-imports the Audionic catalog from audionic.co, priced Rs 100 below it (also on demand: Admin → Products → **Sync Audionic now**)
 
-Both require `Authorization: Bearer <CRON_SECRET>` (Vercel Cron sends this automatically when `CRON_SECRET` is set — ensure the secret matches; the routes also accept `x-cron-secret`).
+All require `Authorization: Bearer <CRON_SECRET>` (Vercel Cron sends this automatically when `CRON_SECRET` is set — ensure the secret matches; the routes also accept `x-cron-secret`).
 
 ### Seed admin (once)
 
@@ -134,7 +133,7 @@ Local hosts still use `src/server.js` (`app.listen` + optional daily `setInterva
 
 - [ ] `GET /api/health` returns `ok`
 - [ ] Admin login works
-- [ ] Product image upload lands on S3 and absolute URL renders
+- [ ] Product image upload lands on Cloudinary and absolute URL renders
 - [ ] Stripe test checkout + webhook marks order paid
 - [ ] Both cron routes reject missing secret; succeed with Bearer token
 - [ ] CORS allows only the frontend origin

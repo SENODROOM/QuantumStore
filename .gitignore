@@ -17,3 +17,4 @@ playwright/.cache/
 scripts/.screenshots/
 .vercel/
 *.tsbuildinfo
+/.git-multi-commit.json

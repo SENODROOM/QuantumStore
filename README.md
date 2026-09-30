@@ -9,7 +9,7 @@ MERN ecommerce for **Quantum Logics Limited** — production-oriented storefront
 - **React 19 (Vite) + TypeScript** — storefront + admin, TanStack Query, internal UI kit
 - **Stripe** — card checkout; **webhook is the source of truth** for payment status
 - **Resend or SMTP** — transactional email
-- **S3-compatible storage** — product images (required in production / Vercel)
+- **Cloudinary** — product images (required in production / Vercel)
 - **Vitest + Playwright** — API and end-to-end tests
 - **Vercel** — separate frontend + API projects (see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md))
 
@@ -45,7 +45,7 @@ npm run seed         # reseed database
 - Zod env validation at API startup; weak JWT / memory DB blocked in production
 - Authenticated/owned Stripe checkout sessions; client cannot mark orders paid
 - CORS allowlist, payment rate limits, structured logging (pino), optional Sentry
-- Object storage abstraction (`STORAGE_DRIVER=local|s3`)
+- Image storage abstraction (`STORAGE_DRIVER=local|cloudinary`)
 - Legal pages: `/privacy`, `/terms`, `/returns`
 
 ## CI
@@ -61,7 +61,7 @@ QuantumStore/
 ├── frontend/           React storefront + admin (submodule)
 ├── backend/            Express API (submodule)
 ├── e2e/                Playwright specs
-├── docs/DEPLOYMENT.md  Hosting guide (Atlas, Stripe, S3)
+├── docs/DEPLOYMENT.md  Hosting guide (Atlas, Stripe, Cloudinary)
 ├── .github/workflows/  CI
 └── package.json
 ```
