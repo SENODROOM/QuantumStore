@@ -234,6 +234,7 @@ export default function ProductFormFields({
           Upload images
           <div className="file-drop">
             <input
+              ref={fileInputRef}
               className="file-drop-input"
               type="file"
               accept="image/*"
@@ -249,7 +250,7 @@ export default function ProductFormFields({
               </svg>
               Choose files
             </span>
-            {uploading && <span className="file-drop-name">Uploading…</span>}
+            <span className="file-drop-name">{uploading ? 'Uploading…' : 'or Ctrl+V'}</span>
           </div>
         </label>
       </div>

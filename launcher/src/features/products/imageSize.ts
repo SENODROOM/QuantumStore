@@ -9,6 +9,12 @@ export function enlargedSize(width: number, height: number) {
   return { width: Math.ceil(width * scale), height: Math.ceil(height * scale) };
 }
 
+/** The images in a paste to upload. Text pasted into a text field stays text, even if the clipboard holds a picture of it too. */
+export function pastedImages(files: File[], text: string, inTextField: boolean) {
+  if (inTextField && text.trim()) return [];
+  return files.filter((file) => file.type.startsWith('image/'));
+}
+
 /** Enlarges an image that is too small for Daraz. Anything the browser cannot draw is sent as it is, for the backend to judge. */
 export async function enlargeIfSmall(file: File): Promise<File> {
   let bitmap: ImageBitmap;
