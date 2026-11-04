@@ -1,6 +1,9 @@
 import type { AudionicItem, AudionicLinkRow } from '../../api/audionic';
 import type { DarazPublishRequest, DarazPublishResult, PreparedListing } from '../../api/daraz';
-import { descriptionForDaraz, descriptionProblem, isBrandNotAuthorized } from '../../../shared/darazText';
+import { descriptionForDaraz, descriptionProblem, isBrandNotAuthorized, isKeywordRefused, isProductPolicyRefused } from '../../../shared/darazText';
+
+/** Daraz's rule number ("R_4862749") from a policy refusal, for asking Seller Support about it. */
+const policyCode = (message: string) => /Policy\((R_\d+)\)/.exec(message)?.[1] ?? 'policy refusal';
 import { getErrorMessage } from '../../utils/errors';
 import { applyPrepared, darazPrice, darazProblem, initialDaraz } from '../daraz/darazForm';
 import { rupeesToStored } from '../products/pricing';
@@ -385,6 +388,19 @@ export async function syncItem(
       const capped = 'Daraz does not allow a price this high in this category (Max Price policy); it stays on QuantumStore only';
       log(`Daraz: skipped — ${capped}`, 'error');
       return { ...result, daraz: 'skipped', darazMessage: capped };
+    }
+    if (isKeywordRefused(message)) {
+      // Daraz's content policy forbids words in this product (e.g. some religious titles). The server has already tried
+      // without the brand name; this is Daraz's rule for the product, not a fault, so the run carries on.
+      const restricted = "Daraz's keyword policy does not allow this product's title or text; it stays on QuantumStore only";
+      log(`Daraz: skipped — ${restricted}`, 'error');
+      return { ...result, daraz: 'skipped', darazMessage: restricted };
+    }
+    if (isProductPolicyRefused(message)) {
+      // Daraz's risk policy refuses this one product (often a protected title or publisher); the next one may be fine.
+      const refused = `Daraz's policy does not allow this product on your account (${policyCode(message)}); it stays on QuantumStore only`;
+      log(`Daraz: skipped — ${refused}`, 'error');
+      return { ...result, daraz: 'skipped', darazMessage: refused };
     }
     log(`Daraz: FAILED — ${message}`, 'error');
     return { ...result, daraz: 'failed', darazMessage: message };

@@ -63,3 +63,10 @@ export type CamshamLink = Omit<AudionicLink, 'audionicId'> & { camshamId: string
 export async function camshamCollection() {
   return (await getDb()).collection<CamshamLink>('launcher_camsham');
 }
+
+/** The same for PakBooks books (pakbooks.com), keyed by PakBooks' product id. */
+export type PakbooksLink = Omit<AudionicLink, 'audionicId'> & { pakbooksId: string };
+
+export async function pakbooksCollection() {
+  return (await getDb()).collection<PakbooksLink>('launcher_pakbooks');
+}
