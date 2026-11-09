@@ -35,13 +35,35 @@ export function pictureCanvas(width: number, height: number): { side: number; wi
   return { side, width: Math.round(width * scale), height: Math.round(height * scale) };
 }
 
-/** Enlarges a picture too small for Daraz onto a centred white square (browser only); other pictures are returned as they are. */
+/** Picture formats Daraz takes as they are; anything else (GIF, WebP…) is redrawn as a JPEG. */
+const DARAZ_FORMATS = /^image\/(jpe?g|png)$/i;
+
+/**
+ * Makes a picture Daraz accepts (browser only): one too small is enlarged onto a centred white square, and a GIF or
+ * other format Daraz refuses is redrawn as a JPEG on white (a GIF gives its first frame). Fine pictures are returned as they are.
+ */
 export async function fitPictureForDaraz(blob: Blob): Promise<Blob> {
   const bitmap = await createImageBitmap(blob);
-  const target = pictureCanvas(bitmap.width, bitmap.height);
-  if (!target) {
+  const enlarge = pictureCanvas(bitmap.width, bitmap.height);
+  if (!enlarge && DARAZ_FORMATS.test(blob.type)) {
     bitmap.close();
     return blob;
+  }
+  // Big enough but in the wrong format: the same size, as a JPEG.
+  const target = enlarge ?? { side: 0, width: bitmap.width, height: bitmap.height };
+  if (!enlarge) {
+    const canvas = document.createElement('canvas');
+    canvas.width = target.width;
+    canvas.height = target.height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('This browser cannot convert pictures');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, target.width, target.height);
+    ctx.drawImage(bitmap, 0, 0);
+    bitmap.close();
+    return new Promise((resolve, reject) =>
+      canvas.toBlob((out) => (out ? resolve(out) : reject(new Error('Could not convert the picture'))), 'image/jpeg', 0.92),
+    );
   }
   const canvas = document.createElement('canvas');
   canvas.width = target.side;
@@ -73,6 +95,8 @@ export async function hostPictures(
     upload: (file: File) => Promise<Copy>;
     copiesOf?: (url: string) => string[];
     onSkip?: (url: string, reason: string) => void;
+    /** The supplier's name for messages ("CamSham"). */
+    label?: string;
   },
 ): Promise<Pictures> {
   const copies: Copy[] = [];
@@ -82,8 +106,11 @@ export async function hostPictures(
     for (const candidate of [url, ...(deps.copiesOf?.(url) ?? [])]) {
       try {
         const blob = await deps.download(candidate);
-        const name = candidate.split('/').pop()?.split('?')[0] || 'camsham-image';
-        copies.push(await deps.upload(new File([blob], name, { type: blob.type || 'image/jpeg' })));
+        const type = blob.type || 'image/jpeg';
+        // A converted GIF must not keep its ".gif" name.
+        const base = (candidate.split('/').pop()?.split('?')[0] || 'supplier-image').replace(/\.[a-z0-9]+$/i, '');
+        const name = `${base}.${type === 'image/png' ? 'png' : type === 'image/webp' ? 'webp' : type === 'image/gif' ? 'gif' : 'jpg'}`;
+        copies.push(await deps.upload(new File([blob], name, { type })));
         firstError = '';
         break;
       } catch (err) {
@@ -95,7 +122,7 @@ export async function hostPictures(
       deps.onSkip?.(url, firstError);
     }
   }
-  if (!copies.length) throw new NoPicturesError(`CamSham has no working picture for it${lastError ? ` (${lastError})` : ''}`);
+  if (!copies.length) throw new NoPicturesError(`${deps.label ?? 'CamSham'} has no working picture for it${lastError ? ` (${lastError})` : ''}`);
   const [cover, ...rest] = copies;
   return {
     image: cover.url,

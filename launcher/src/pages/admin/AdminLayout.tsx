@@ -39,6 +39,12 @@ const ICON_PATHS: Record<string, ReactNode> = {
       <circle cx="12" cy="13" r="3.5" />
     </>
   ),
+  pakbooks: (
+    <>
+      <path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5Z" />
+      <line x1="12" y1="6.5" x2="12" y2="19.5" />
+    </>
+  ),
   sync: (
     <>
       <path d="M4 12a8 8 0 0 1 14-5.3L20 9" />
@@ -186,6 +192,7 @@ export default function AdminLayout() {
     { to: '/products', label: 'Products', icon: 'products' },
     { to: '/audionic', label: 'Audionic', icon: 'audionic' },
     { to: '/camsham', label: 'CamSham', icon: 'camsham' },
+    { to: '/pakbooks', label: 'PakBooks', icon: 'pakbooks' },
     { to: '/sync', label: 'Sync', icon: 'sync' },
     { to: '/categories', label: 'Categories', icon: 'categories' },
     { to: '/orders', label: 'Orders', icon: 'orders', badge: toShipCount },

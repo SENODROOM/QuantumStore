@@ -572,4 +572,24 @@ describe('another supplier (CamSham)', () => {
     expect(result.darazMessage).toMatch(/Max Price/);
     expect(consecutiveFailures(2, result, 'daraz')).toBe(2);
   });
+
+  it("keeps a product Daraz's keyword policy refuses on QuantumStore only, without counting a failure", async () => {
+    const policy =
+      "E500: Create product failed — Product: BIZ_CHECK_MTEE_RISK_RULE_TRIGGER_MTEE_RISK_RULE_TRIGGER_ERROR:Failed by Policy(R_5756913): You're not allowed to sell these keywords.";
+    const result = await syncItem(item, undefined, deps({ source: camsham, publishDaraz: vi.fn(async () => Promise.reject(new Error(policy))) }));
+    expect(result).toMatchObject({ store: 'created', daraz: 'skipped' });
+    expect(result.darazMessage).toMatch(/keyword policy/);
+    expect(consecutiveFailures(2, result, 'daraz')).toBe(2);
+  });
+
+  it.each([
+    'Failed by Policy(R_4862749): You are not authorized to sell these products.',
+    'Failed by Policy(R_5016716): You are not allowed to sell this on the platform',
+  ])("skips one product Daraz's risk policy refuses, without stopping the run: %s", async (tail) => {
+    const policy = `E500: Create product failed — Product: BIZ_CHECK_MTEE_RISK_RULE_TRIGGER_MTEE_RISK_RULE_TRIGGER_ERROR:${tail}`;
+    const result = await syncItem(item, undefined, deps({ source: camsham, publishDaraz: vi.fn(async () => Promise.reject(new Error(policy))) }));
+    expect(result).toMatchObject({ store: 'created', daraz: 'skipped' });
+    expect(result.darazMessage).toMatch(/R_\d+.*QuantumStore only/);
+    expect(consecutiveFailures(2, result, 'daraz')).toBe(2);
+  });
 });

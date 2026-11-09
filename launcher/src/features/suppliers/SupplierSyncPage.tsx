@@ -73,6 +73,9 @@ type LogLine = { time: string; level: 'info' | 'error'; text: string };
 
 const MAX_LOG_LINES = 500;
 
+/** Rows drawn in the table at once (a catalog of thousands would make the page crawl); the filter narrows the rest. */
+const MAX_ROWS = 300;
+
 /**
  * When the AI (Groq) cannot answer for a while — its rate limit, or the connection to it failing (e.g. a DNS hiccup) —
  * the product waits this long (seconds) and tries again, until it goes through or Stop is pressed.
@@ -417,7 +420,6 @@ export default function SupplierSyncPage<I extends SourceItem>({ config, adopt, 
     let done = 0;
     let storeFailures = 0;
     let darazFailures = 0;
-    let haltedBecause = '';
     const leftForLater = new Set<string>();
     // Types that already have a category go first; the rest follow in the order the AI works through them.
     const queue = [...toSync].sort((a, b) => {
@@ -473,24 +475,19 @@ export default function SupplierSyncPage<I extends SourceItem>({ config, adopt, 
         addLog(`${darazPausedReason}. The remaining products only go to QuantumStore.`, 'error');
       }
 
-      // Do not repeat the same failure for every remaining product: stop and say what went wrong.
+      // The run never stops itself on failures (only the Stop button ends it early); a streak is flagged once in the
+      // log so a broken connection or setting is noticed.
       storeFailures = consecutiveFailures(storeFailures, result, 'store');
       darazFailures = consecutiveFailures(darazFailures, result, 'daraz');
-      if (storeFailures >= STOP_AFTER_FAILURES) haltedBecause = `QuantumStore refused ${STOP_AFTER_FAILURES} products in a row (${result.storeMessage})`;
-      else if (darazFailures >= STOP_AFTER_FAILURES) haltedBecause = `Daraz refused ${STOP_AFTER_FAILURES} products in a row (${result.darazMessage})`;
-      if (haltedBecause) break;
+      if (storeFailures === STOP_AFTER_FAILURES) addLog(`Warning: QuantumStore refused ${STOP_AFTER_FAILURES} products in a row (${result.storeMessage}). Carrying on; press Stop if this needs fixing first.`, 'error');
+      if (darazFailures === STOP_AFTER_FAILURES) addLog(`Warning: Daraz refused ${STOP_AFTER_FAILURES} products in a row (${result.darazMessage}). Carrying on; press Stop if this needs fixing first.`, 'error');
     }
     setRunning(false);
     addLog(
       `Finished${stopRef.current ? ' (stopped)' : ''}: ${done} of ${toSync.length} handled · on Daraz ${tally.listed} · Daraz failed ${tally.darazFailed} · Daraz skipped ${tally.darazSkipped} · Daraz brand not authorized ${tally.darazBlocked} · QuantumStore failed ${tally.storeFailed}${tally.noPicture ? ` · skipped (no working picture) ${tally.noPicture}` : ''}`,
       tally.darazFailed || tally.storeFailed ? 'error' : 'info',
     );
-    if (haltedBecause) {
-      addLog(`Stopped early: ${haltedBecause}`, 'error');
-      setNotice(`Stopped after ${done} of ${toSync.length}: ${haltedBecause}. Nothing is lost: products already created are remembered, so press Sync again after fixing it and only the rest is done.`);
-    } else {
-      toast.success(`${done} of ${toSync.length} products synced${stopRef.current ? ' (stopped)' : ''}`);
-    }
+    toast.success(`${done} of ${toSync.length} products synced${stopRef.current ? ' (stopped)' : ''}`);
     await Promise.all([catalog.refetch(), queryClient.invalidateQueries({ queryKey: queryKeys.products.all })]);
   }
 
@@ -626,7 +623,7 @@ export default function SupplierSyncPage<I extends SourceItem>({ config, adopt, 
                 </tr>
               </thead>
               <tbody>
-                {shown.map((item) => {
+                {shown.slice(0, MAX_ROWS).map((item) => {
                   const id = idOf(item);
                   const category = typeCategories[item.type];
                   const commission = category ? commissionFor(groupOf(category.path)) : null;
@@ -676,6 +673,12 @@ export default function SupplierSyncPage<I extends SourceItem>({ config, adopt, 
               </tbody>
             </table>
           </div>
+          {shown.length > MAX_ROWS && (
+            <p className="muted" style={{ margin: '0.5rem 0' }}>
+              Showing the first {MAX_ROWS} of {shown.length.toLocaleString()} products. The tick box in the header still
+              selects all {shown.length.toLocaleString()} that match the filter; type in the filter to narrow the list.
+            </p>
+          )}
         </>
       )}
 
